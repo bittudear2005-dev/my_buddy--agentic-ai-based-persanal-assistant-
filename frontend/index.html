@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Workmate — Agentic AI for Personal Productivity. Manage tasks, goals, notes, and chat with your AI assistant." />
+  <title>Workmate — AI Productivity Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+</head>
+<body>
+
+  <!-- Animated background orbs -->
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========== AUTH PAGE ========== -->
+  <div id="authPage" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">⚡</div>
+        <h2>Workmate</h2>
+        <p>AI-Powered Productivity Hub</p>
+      </div>
+
+      <div class="auth-error" id="authError"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="return handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" id="loginBtn">
+          🔐 Sign In
+        </button>
+      </form>
+
+      <!-- Register Form (hidden by default) -->
+      <form id="registerForm" style="display:none" onsubmit="return handleRegister(event)">
+        <div class="form-group">
+          <label for="regName">Full Name</label>
+          <input type="text" id="regName" class="form-input" placeholder="Jane Doe" />
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Min. 8 characters" required autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" id="registerBtn">
+          🚀 Create Account
+        </button>
+      </form>
+
+      <div class="auth-switch" id="authSwitch">
+        Don't have an account? <a onclick="toggleAuthForm()">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN APP ========== -->
+  <div id="appContainer" class="app-container" style="display:none">
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1>Workmate</h1>
+          <span>AI Productivity Hub</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')" id="nav-dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" data-page="tasks" onclick="navigateTo('tasks')" id="nav-tasks">
+          <span class="nav-icon">✅</span> Tasks
+          <span class="nav-badge" id="taskCount"></span>
+        </div>
+        <div class="nav-item" data-page="goals" onclick="navigateTo('goals')" id="nav-goals">
+          <span class="nav-icon">🎯</span> Goals
+        </div>
+        <div class="nav-item" data-page="notes" onclick="navigateTo('notes')" id="nav-notes">
+          <span class="nav-icon">📝</span> Notes
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">AI Tools</div>
+        <div class="nav-item" data-page="ai-chat" onclick="navigateTo('ai-chat')" id="nav-ai-chat">
+          <span class="nav-icon">🤖</span> AI Assistant
+          <span class="nav-badge ai-badge">AI</span>
+        </div>
+      </div>
+
+      <div class="sidebar-user" id="sidebarUser">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-email" id="userEmail">—</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Sign Out" aria-label="Sign Out">⏻</button>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2 id="dashGreeting">👋 Welcome back!</h2>
+            <p id="dashDate" style="color:var(--text-muted);font-size:13px;margin-top:4px"></p>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="openModal('task')">+ Task</button>
+            <button class="btn btn-secondary btn-sm" onclick="openModal('goal')">+ Goal</button>
+            <button class="btn btn-secondary btn-sm" onclick="openModal('note')">+ Note</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="dashboardStats">
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="statTasks">–</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="statGoals">–</div>
+            <div class="stat-label">Goals</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value" id="statNotes">–</div>
+            <div class="stat-label">Notes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value" id="statCompleted">–</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <!-- Quick Add Card -->
+        <div class="quick-add-bar">
+          <input type="text" id="quickTaskInput" class="form-input" placeholder="⚡ Quick add a task... (press Enter)" onkeydown="if(event.key==='Enter')quickAddTask()" style="flex:1" />
+          <button class="btn btn-primary" onclick="quickAddTask()">Add</button>
+        </div>
+
+        <h3 style="margin:24px 0 14px;font-size:16px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;font-weight:600">📋 Recent Tasks</h3>
+        <div class="item-list" id="recentTasks">
+          <div class="spinner"></div>
+        </div>
+
+        <h3 style="margin:28px 0 14px;font-size:16px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;font-weight:600">🎯 Active Goals</h3>
+        <div class="item-list" id="recentGoals">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- ===== TASKS PAGE ===== -->
+      <div id="page-tasks" class="page">
+        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2>✅ Tasks</h2>
+            <p>Manage your to-do list</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <select id="taskCategoryFilter" class="form-select" style="width:140px" onchange="applyTaskFilters()">
+              <option value="">All Categories</option>
+              <option value="General">General</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Health">Health</option>
+              <option value="Learning">Learning</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModal('task')">+ New Task</button>
+          </div>
+        </div>
+        <div class="tabs">
+          <button class="tab active" onclick="filterTasks('all', this)" id="tab-all">All</button>
+          <button class="tab" onclick="filterTasks('pending', this)" id="tab-pending">Pending</button>
+          <button class="tab" onclick="filterTasks('completed', this)" id="tab-completed">Completed</button>
+        </div>
+        <div class="item-list" id="taskList">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- ===== GOALS PAGE ===== -->
+      <div id="page-goals" class="page">
+        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2>🎯 Goals</h2>
+            <p>Track your ambitions</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <select id="goalTypeFilter" class="form-select" style="width:140px" onchange="applyGoalFilters()">
+              <option value="">All Types</option>
+              <option value="daily">Daily</option>
+              <option value="longterm">Long-term</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModal('goal')">+ New Goal</button>
+          </div>
+        </div>
+        <div class="item-list" id="goalList">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- ===== NOTES PAGE ===== -->
+      <div id="page-notes" class="page">
+        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2>📝 Notes</h2>
+            <p>Capture your thoughts</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <input type="text" id="notesSearch" class="form-input" placeholder="🔍 Search notes..." style="width:200px" oninput="filterNotesList()" />
+            <button class="btn btn-primary" onclick="openModal('note')">+ New Note</button>
+          </div>
+        </div>
+        <div class="notes-grid" id="noteList">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- ===== AI CHAT PAGE ===== -->
+      <div id="page-ai-chat" class="page">
+        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <h2>🤖 AI Assistant</h2>
+            <p>Powered by Gemini &amp; Groq</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <select id="aiModelSelect" class="form-select" style="width:130px">
+              <option value="gemini">✨ Gemini</option>
+              <option value="groq">⚡ Groq</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="clearChatUI()">Clear Chat</button>
+          </div>
+        </div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-welcome">
+              <div class="chat-welcome-icon">🤖</div>
+              <h3>Hello! I'm your AI assistant.</h3>
+              <p>Ask me anything — tasks, goals, writing, brainstorming, and more.</p>
+              <div class="chat-suggestions">
+                <button class="suggestion-chip" onclick="sendSuggestion('Help me plan my week productively')">📅 Plan my week</button>
+                <button class="suggestion-chip" onclick="sendSuggestion('Give me 5 productivity tips')">💡 Productivity tips</button>
+                <button class="suggestion-chip" onclick="sendSuggestion('Help me break down a big goal into smaller steps')">🎯 Break down a goal</button>
+                <button class="suggestion-chip" onclick="sendSuggestion('Write a daily motivation quote for me')">✨ Daily motivation</button>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-bar">
+            <textarea id="chatInput" placeholder="Message your AI assistant... (Shift+Enter for new line)" rows="1"
+              onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="btn btn-primary btn-send" onclick="sendChat()" id="sendBtn" aria-label="Send">➤</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========== MODALS ========== -->
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="taskModalTitle">✅ New Task</h3>
+        <button class="modal-close" onclick="closeModal('task')" aria-label="Close">✕</button>
+      </div>
+      <form onsubmit="return submitTask(event)" id="taskForm">
+        <input type="hidden" id="taskEditId" />
+        <div class="form-group">
+          <label for="taskTitle">Title *</label>
+          <input type="text" id="taskTitle" class="form-input" placeholder="What needs to be done?" required />
+        </div>
+        <div class="form-group">
+          <label for="taskDesc">Description</label>
+          <textarea id="taskDesc" class="form-textarea" placeholder="Add details..."></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" class="form-select">
+              <option value="1">1 – Very Low</option>
+              <option value="2">2 – Low</option>
+              <option value="3" selected>3 – Medium</option>
+              <option value="4">4 – High</option>
+              <option value="5">5 – Urgent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taskCategory">Category</label>
+            <select id="taskCategory" class="form-select">
+              <option value="General">General</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Health">Health</option>
+              <option value="Learning">Learning</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label for="taskDeadline">Deadline</label>
+            <input type="date" id="taskDeadline" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label for="taskDuration">Duration (min)</label>
+            <input type="number" id="taskDuration" class="form-input" min="5" value="60" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" id="taskSubmitBtn">
+          Create Task
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Goal Modal -->
+  <div class="modal-overlay" id="goalModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="goalModalTitle">🎯 New Goal</h3>
+        <button class="modal-close" onclick="closeModal('goal')" aria-label="Close">✕</button>
+      </div>
+      <form onsubmit="return submitGoal(event)" id="goalForm">
+        <input type="hidden" id="goalEditId" />
+        <div class="form-group">
+          <label for="goalTitle">Goal Title *</label>
+          <input type="text" id="goalTitle" class="form-input" placeholder="What do you want to achieve?" required />
+        </div>
+        <div class="form-group">
+          <label for="goalDesc">Description</label>
+          <textarea id="goalDesc" class="form-textarea" placeholder="Describe your goal..."></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label for="goalType">Type</label>
+            <select id="goalType" class="form-select">
+              <option value="daily">Daily</option>
+              <option value="longterm">Long-term</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="goalPriority">Priority</label>
+            <select id="goalPriority" class="form-select">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="goalTargetDate">Target Date</label>
+          <input type="date" id="goalTargetDate" class="form-input" />
+        </div>
+        <div class="form-group" id="goalProgressGroup" style="display:none">
+          <label for="goalProgress">Progress: <span id="goalProgressVal">0</span>%</label>
+          <input type="range" id="goalProgress" min="0" max="100" value="0" style="width:100%;accent-color:var(--accent-primary)" oninput="document.getElementById('goalProgressVal').textContent=this.value" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" id="goalSubmitBtn">
+          Create Goal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 id="noteModalTitle">📝 New Note</h3>
+        <button class="modal-close" onclick="closeModal('note')" aria-label="Close">✕</button>
+      </div>
+      <form onsubmit="return submitNote(event)" id="noteForm">
+        <input type="hidden" id="noteEditId" />
+        <div class="form-group">
+          <label for="noteTitle">Title *</label>
+          <input type="text" id="noteTitle" class="form-input" placeholder="Note title..." required />
+        </div>
+        <div class="form-group">
+          <label for="noteContent">Content *</label>
+          <textarea id="noteContent" class="form-textarea" placeholder="Write your thoughts here..." style="min-height:160px" required></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end">
+          <div class="form-group">
+            <label for="noteCategory">Category</label>
+            <select id="noteCategory" class="form-select">
+              <option value="Personal">Personal</option>
+              <option value="Work">Work</option>
+              <option value="Ideas">Ideas</option>
+              <option value="Learning">Learning</option>
+            </select>
+          </div>
+          <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-bottom:16px">
+            <input type="checkbox" id="noteFavorite" style="accent-color:var(--accent-primary);width:16px;height:16px" />
+            <label for="noteFavorite" style="margin:0;cursor:pointer">⭐ Mark as Favorite</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" id="noteSubmitBtn">
+          Save Note
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Note View Modal -->
+  <div class="modal-overlay" id="noteViewModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 id="noteViewTitle" style="flex:1"></h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-secondary btn-sm" id="noteViewEditBtn" onclick="editCurrentNote()">✏️ Edit</button>
+          <button class="modal-close" onclick="closeModal('noteView')" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="modal-body-scroll">
+        <div id="noteViewMeta" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"></div>
+        <div id="noteViewContent" style="font-size:14px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap;word-break:break-word"></div>
+        <div id="noteViewDate" style="margin-top:20px;font-size:12px;color:var(--text-muted)"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+# Core Framework (Python 3.14 compatible)
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# Data Validation (pydantic 2.9+ has Python 3.14 wheels)
+pydantic>=2.9.0
+pydantic-settings>=2.4.0
+email-validator>=2.1.0
+
+# Environment & Config
+python-dotenv>=1.0.0
+
+# Database - PostgreSQL + SQLAlchemy
+sqlalchemy>=2.0.36
+# psycopg2-binary - commented out (no Python 3.14 wheel, needs C++ Build Tools)
+alembic>=1.13.1
+asyncpg>=0.30.0
+
+# Authentication & Security
+PyJWT>=2.8.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.9
+bcrypt>=4.1.2
+
+# HTTP Client
+httpx>=0.27.0
+aiosqlite>=0.20.0
+
+# AI & ML
+google-generativeai>=0.8.0
+openai>=1.50.0
+
+# File Processing
+python-magic>=0.4.27
+PyPDF2>=3.0.1
+# Pillow - commented out (no Python 3.14 wheel yet, re-enable after Python 3.12 switch)
+# Pillow>=10.1.0
+
+# Utilities
+python-slugify>=8.0.1
+validators>=0.22.0
+
+# Async & Performance
+aiofiles>=23.2.1
+
+# Caching (Optional)
+redis>=5.0.1
+
+# Monitoring & Logging
+python-json-logger>=2.0.7
+
+# Testing (Optional)
+pytest>=7.4.3
+pytest-asyncio>=0.23.0
