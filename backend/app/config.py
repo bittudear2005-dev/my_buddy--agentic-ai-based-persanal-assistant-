@@ -14,10 +14,12 @@ class Settings(BaseSettings):
     
     # PostgreSQL Database Configuration
     DATABASE_URL: str = Field(
-        default="sqlite:///./workmate.db",`r`n        alias="database_url"
+        default="sqlite:///./workmate.db",
+        alias="database_url"
     )
     ASYNC_DATABASE_URL: str = Field(
-        default="sqlite+aiosqlite:///./workmate.db",`r`n        alias="async_database_url"
+        default="sqlite+aiosqlite:///./workmate.db",
+        alias="async_database_url"
     )
     
     # Database Pool Settings
