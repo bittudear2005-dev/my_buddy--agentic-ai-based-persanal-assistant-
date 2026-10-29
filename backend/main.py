@@ -26,12 +26,12 @@ async def lifespan(app: FastAPI):
     # Startup: ensure tables are created
     try:
         create_tables()
-        print("✅ Database tables created/verified successfully")
+        print("Database tables created/verified successfully")
     except Exception as e:
-        print(f"⚠️  Database initialization notice: {e}")
+        print(f"Database initialization notice: {e}")
     yield
     # Shutdown
-    print("👋 Shutting down Cosmic Assistant...")
+    print("Shutting down Cosmic Assistant...")
 
 
 # Create FastAPI application

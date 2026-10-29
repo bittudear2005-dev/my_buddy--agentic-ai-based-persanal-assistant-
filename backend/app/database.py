@@ -31,11 +31,11 @@ def get_engine():
         # Test connection with a short timeout
         with eng.connect() as conn:
             pass
-        print(f"✅ Connected to PostgreSQL database ({db_url})")
+        print(f"Connected to PostgreSQL database ({db_url})")
         return eng
     except Exception as e:
-        print(f"⚠️  Could not connect to PostgreSQL ({db_url}): {e}")
-        print("💡 Falling back to local SQLite database: cosmic_assistant.db")
+        print(f"Could not connect to PostgreSQL ({db_url}): {e}")
+        print("Falling back to local SQLite database: cosmic_assistant.db")
         fallback_url = "sqlite:///./cosmic_assistant.db"
         return create_engine(
             fallback_url,
@@ -72,7 +72,7 @@ def create_tables():
     """
     import app.models.orm_models  # Ensure models are registered with Base
     Base.metadata.create_all(bind=engine)
-    print("✅ All database tables created/verified successfully")
+    print("All database tables created/verified successfully")
 
 
 def drop_tables():
@@ -81,4 +81,4 @@ def drop_tables():
     """
     import app.models.orm_models
     Base.metadata.drop_all(bind=engine)
-    print("⚠️ All database tables dropped")
+    print("All database tables dropped")
